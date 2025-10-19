@@ -37,8 +37,8 @@
       usersDiv.innerHTML = data.data.users.map(u => `
         <div class="user">
           <b>${u.name}</b> (${u.email}, age ${u.age ?? 'N/A'})
-          <button onclick="deleteUser(${u.id})">❌</button>
-          <button onclick="editUser(${u.id}, '${u.name}', '${u.email}', ${u.age ?? 0})">✏️</button>
+          <button onclick="deleteUser(${u.id})">Delete</button>
+          <button onclick="editUser(${u.id}, '${u.name}', '${u.email}', ${u.age ?? 0})">Edit</button>
         </div>
       `).join('')
     }
