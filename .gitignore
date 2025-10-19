@@ -1,0 +1,23 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Prisma
+/prisma/dev.db
+/prisma/dev.db-journal
+/prisma/migrations/
+
+# Build and cache
+dist/
+build/
+.cache/
+*.log
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

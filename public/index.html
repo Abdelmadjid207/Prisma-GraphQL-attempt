@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prisma GraphQL Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    input, button { margin: .3rem; padding: .3rem; }
+    .user { border-bottom: 1px solid #ddd; padding: .5rem 0; }
+  </style>
+</head>
+<body>
+  <h2>User Manager</h2>
+
+  <div>
+    <input id="name" placeholder="Name" />
+    <input id="email" placeholder="Email" />
+    <input id="age" type="number" placeholder="Age" />
+    <button onclick="createUser()">Add User</button>
+  </div>
+
+  <h3>All Users</h3>
+  <div id="users"></div>
+
+  <script>
+    const API = '/graphql'
+
+    async function fetchUsers() {
+      const query = `query { users { id name email age } }`
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      })
+      const data = await res.json()
+      const usersDiv = document.getElementById('users')
+      usersDiv.innerHTML = data.data.users.map(u => `
+        <div class="user">
+          <b>${u.name}</b> (${u.email}, age ${u.age ?? 'N/A'})
+          <button onclick="deleteUser(${u.id})">❌</button>
+          <button onclick="editUser(${u.id}, '${u.name}', '${u.email}', ${u.age ?? 0})">✏️</button>
+        </div>
+      `).join('')
+    }
+
+    async function createUser() {
+      const name = document.getElementById('name').value
+      const email = document.getElementById('email').value
+      const age = parseInt(document.getElementById('age').value)
+      const mutation = `
+        mutation {
+          createUser(name: "${name}", email: "${email}", age: ${isNaN(age) ? null : age}) {
+            id name email age
+          }
+        }
+      `
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: mutation })
+      })
+      fetchUsers()
+    }
+
+    async function deleteUser(id) {
+      const mutation = `mutation { deleteUser(id: ${id}) { id } }`
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: mutation })
+      })
+      fetchUsers()
+    }
+
+    async function editUser(id, oldName, oldEmail, oldAge) {
+      const name = prompt("New name:", oldName)
+      const email = prompt("New email:", oldEmail)
+      const age = parseInt(prompt("New age:", oldAge))
+      const mutation = `
+        mutation {
+          updateUser(id: ${id}, name: "${name}", email: "${email}", age: ${isNaN(age) ? null : age}) {
+            id name email age
+          }
+        }
+      `
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: mutation })
+      })
+      fetchUsers()
+    }
+
+    fetchUsers()
+  </script>
+</body>
+</html>
